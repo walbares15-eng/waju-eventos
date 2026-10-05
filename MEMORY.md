@@ -1,0 +1,1 @@
+- [WAJU EVENTOS Project](memory/waju-eventos.md) — Projeto PDV de eventos
