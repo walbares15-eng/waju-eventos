@@ -8,7 +8,7 @@ import {
   readState,
   writeState,
 } from './data'
-import type { AppState, PaymentMethod, ProductItem, SaleRecord } from './types'
+import type { AppState, EventItem, PaymentMethod, ProductItem, SaleRecord } from './types'
 
 type Tab = 'caixa' | 'resgate' | 'admin' | 'relatorio'
 
@@ -88,8 +88,6 @@ function App() {
   }
 
   const clearCart = () => setCart({})
-
-  const [isProcessing, setIsProcessing] = useState(false)
 
   const finalizeSale = async () => {
     if (!cartItems.length) {
@@ -232,7 +230,7 @@ function App() {
       return
     }
 
-    const newEvent = {
+    const newEvent: EventItem = {
       id: crypto.randomUUID(),
       name: eventDraft.name,
       date: eventDraft.date,
