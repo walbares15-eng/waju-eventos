@@ -17,6 +17,7 @@ export interface ProductItem {
   price: number
   color: string
   active: boolean
+  image?: string
 }
 
 export interface SaleItem {

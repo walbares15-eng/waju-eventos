@@ -33,7 +33,7 @@ function App() {
     paymentMethod: 'Todos',
   })
   const [eventDraft, setEventDraft] = useState({ name: '', date: '2026-11-20', location: '' })
-  const [productDraft, setProductDraft] = useState({ name: '', price: '12', color: '#2563eb' })
+  const [productDraft, setProductDraft] = useState({ name: '', price: '12', color: '#2563eb', image: '' })
   const [statusMessage, setStatusMessage] = useState('Offline pronto para vender.')
   const [isProcessing, setIsProcessing] = useState(false)
 
@@ -247,6 +247,17 @@ function App() {
     setStatusMessage(`Evento ${newEvent.name} criado com sucesso.`)
   }
 
+  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    if (file) {
+      const reader = new FileReader()
+      reader.onloadend = () => {
+        setProductDraft((previous) => ({ ...previous, image: reader.result as string }))
+      }
+      reader.readAsDataURL(file)
+    }
+  }
+
   const createProduct = () => {
     if (!productDraft.name || !productDraft.price) {
       setStatusMessage('Preencha nome e valor do produto para incluir no evento.')
@@ -259,6 +270,7 @@ function App() {
       name: productDraft.name,
       price: Number(productDraft.price),
       color: productDraft.color,
+      image: productDraft.image,
       active: true,
     }
 
@@ -266,7 +278,7 @@ function App() {
       ...previous,
       products: [newProduct, ...previous.products],
     }))
-    setProductDraft({ name: '', price: '12', color: '#2563eb' })
+    setProductDraft({ name: '', price: '12', color: '#2563eb', image: '' })
     setStatusMessage(`Produto ${newProduct.name} adicionado ao evento.`)
   }
 
@@ -284,6 +296,21 @@ function App() {
       ...previous,
       products: previous.products.filter((product) => product.id !== productId),
     }))
+  }
+
+  const updateProductImage = (productId: string, image: string | undefined) => {
+    setState((previous) => ({
+      ...previous,
+      products: previous.products.map((product) =>
+        product.id === productId ? { ...product, image } : product,
+      ),
+    }))
+    setStatusMessage('Imagem do produto atualizada.')
+  }
+
+  const removeProductImage = (productId: string) => {
+    updateProductImage(productId, undefined)
+    setStatusMessage('Imagem do produto removida.')
   }
 
   const filteredSales = useMemo(() => {
@@ -493,7 +520,11 @@ function App() {
                   key={product.id}
                   type="button"
                   className="product-button"
-                  style={{ background: product.color }}
+                  style={{
+                    background: product.image ? `linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url(${product.image})` : product.color,
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center',
+                  }}
                   onClick={() => addToCart(product.id)}
                 >
                   <span>{product.name}</span>
@@ -675,6 +706,7 @@ function App() {
                 value={productDraft.color}
                 onChange={(event) => setProductDraft((previous) => ({ ...previous, color: event.target.value }))}
               />
+              <input type="file" accept="image/*" onChange={handleImageUpload} />
             </div>
             <button type="button" className="primary" onClick={createProduct}>
               Incluir produto
@@ -686,7 +718,11 @@ function App() {
                 .map((product) => (
                   <div key={product.id} className="list-card product-row">
                     <div className="product-name-block">
-                      <span className="swatch" style={{ background: product.color }} />
+                      {product.image ? (
+                        <img src={product.image} alt={product.name} style={{ width: '32px', height: '32px', objectFit: 'cover', borderRadius: '4px' }} />
+                      ) : (
+                        <span className="swatch" style={{ background: product.color }} />
+                      )}
                       <div>
                         <strong>{product.name}</strong>
                         <span>{formatCurrency(product.price)}</span>
@@ -699,6 +735,15 @@ function App() {
                       <button type="button" className="danger" onClick={() => deleteProduct(product.id)}>
                         Excluir
                       </button>
+                      <label className="secondary" style={{ cursor: 'pointer', fontSize: '0.8rem', padding: '0.4rem 0.6rem', borderRadius: '5px', border: '1px solid #cbd5e1', background: '#f1f5f9' }}>
+                        Foto
+                        <input type="file" accept="image/*" style={{ display: 'none' }} onChange={(e) => { const file = e.target.files?.[0]; if (file) { const reader = new FileReader(); reader.onloadend = () => updateProductImage(product.id, reader.result as string); reader.readAsDataURL(file); } }} />
+                      </label>
+                      {product.image && (
+                        <button type="button" className="danger" style={{ fontSize: '0.8rem', padding: '0.4rem 0.6rem' }} onClick={() => removeProductImage(product.id)}>
+                          Remover foto
+                        </button>
+                      )}
                     </div>
                   </div>
                 ))}
