@@ -707,6 +707,14 @@ function App() {
                 onChange={(event) => setProductDraft((previous) => ({ ...previous, color: event.target.value }))}
               />
               <input type="file" accept="image/*" onChange={handleImageUpload} />
+              {productDraft.image && (
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '4px' }}>
+                  <img src={productDraft.image} alt="preview" style={{ width: '40px', height: '40px', objectFit: 'cover', borderRadius: '4px' }} />
+                  <button type="button" className="danger" style={{ fontSize: '0.75rem', padding: '0.3rem 0.5rem' }} onClick={() => setProductDraft((prev) => ({ ...prev, image: '' }))}>
+                    Remover foto
+                  </button>
+                </div>
+              )}
             </div>
             <button type="button" className="primary" onClick={createProduct}>
               Incluir produto
@@ -735,12 +743,12 @@ function App() {
                       <button type="button" className="danger" onClick={() => deleteProduct(product.id)}>
                         Excluir
                       </button>
-                      <label className="secondary" style={{ cursor: 'pointer', fontSize: '0.8rem', padding: '0.4rem 0.6rem', borderRadius: '5px', border: '1px solid #cbd5e1', background: '#f1f5f9' }}>
-                        Foto
-                        <input type="file" accept="image/*" style={{ display: 'none' }} onChange={(e) => { const file = e.target.files?.[0]; if (file) { const reader = new FileReader(); reader.onloadend = () => updateProductImage(product.id, reader.result as string); reader.readAsDataURL(file); } }} />
+                      <input type="file" accept="image/*" onChange={(e) => { const file = e.target.files?.[0]; if (file) { const reader = new FileReader(); reader.onloadend = () => updateProductImage(product.id, reader.result as string); reader.readAsDataURL(file); } }} style={{ display: 'none' }} id={`image-input-${product.id}`} />
+                      <label htmlFor={`image-input-${product.id}`} className="secondary" style={{ cursor: 'pointer', fontSize: '0.75rem', padding: '0.3rem 0.5rem', borderRadius: '5px', border: '1px solid #cbd5e1', background: '#f1f5f9' }}>
+                        Trocar foto
                       </label>
                       {product.image && (
-                        <button type="button" className="danger" style={{ fontSize: '0.8rem', padding: '0.4rem 0.6rem' }} onClick={() => removeProductImage(product.id)}>
+                        <button type="button" className="danger" style={{ fontSize: '0.75rem', padding: '0.3rem 0.5rem' }} onClick={() => removeProductImage(product.id)}>
                           Remover foto
                         </button>
                       )}
